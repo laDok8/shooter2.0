@@ -11,7 +11,7 @@ import java.util.List;
 // TODO: move everything to double
 public class Bullet extends Rectangle {
     static private final int BULLETWIDTH = 5,BULLETHEIGHT = 2;
-    private int x,y;
+    public int x,y;
     private double vectx,vecty;
     private int SPEED = 10, i = 0;
     Rotate angle;
@@ -44,6 +44,7 @@ public class Bullet extends Rectangle {
                 return true;
             }
         }
+
         return false;
     }
 }
