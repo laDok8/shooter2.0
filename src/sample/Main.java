@@ -2,11 +2,15 @@ package sample;
 
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
+import javafx.scene.Camera;
 import javafx.scene.Scene;
+import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,6 +19,7 @@ public class Main extends Application {
     protected List<Bullet> bulletList = new ArrayList<>();
     protected List<Player> playerList = new ArrayList<>();
     int CIRCLEWIDTH = 10, STRIDE = 5;
+    int WINDOWWIDTH = 600, WINDOWHEIGHT = 500;
     Map map;
     Player player1;
     Player dumym1;
@@ -52,16 +57,22 @@ public class Main extends Application {
             
             bulToRemove.clear();
             plToRemove.clear();
+
+
+            root.relocate(-(player1.getX()-CIRCLEWIDTH/2-WINDOWWIDTH/2),-(player1.getY()-CIRCLEWIDTH/2-WINDOWWIDTH/2));
         }
 
 
     };
 
     @Override
-    public void start(Stage primaryStage) throws Exception{
+     /* canvas - neumoznuje kreslit objekty
+      scene - nutnost odstranovat/pridavat vsechny objekty
+     */
+    public void start(Stage primaryStage){
         root = new Pane();
         primaryStage.setTitle("Hello World");
-        Scene mScene = new Scene(root, 600, 500);
+        Scene mScene = new Scene(root, WINDOWWIDTH, WINDOWHEIGHT);
 
 
 
@@ -72,15 +83,6 @@ public class Main extends Application {
         player1 = new Player(CIRCLEWIDTH,350,150,"macho", Color.BLUE, map);
         dumym1 = new Player(CIRCLEWIDTH,200,200,"Deviant", Color.RED, map);
         dummy2 = new Player(CIRCLEWIDTH,400,250,"Jericho", Color.GREEN, map);
-
-        root.relocate(-50,-50);
-        //kamera
-        /*Camera camera = new Camera() {
-            @Override
-            public boolean hasProperties() {
-                return super.hasProperties();
-            }
-        }*/
 
 
         //keyListener
@@ -99,9 +101,8 @@ public class Main extends Application {
         //mouseListener
         mScene.setOnMouseClicked( e -> {
             //relative to window
-            System.out.println("x: "
-                    + e.getX() + " y: "+ e.getY());
-            shoot(player1,e.getX(),e.getY());
+            //System.out.println("x: "+ String.valueOf(e.getX()-WINDOWHEIGHT) + " y: "+ e.getY()-WINDOWHEIGHT);
+            shoot(player1,e.getX()-WINDOWWIDTH,e.getY()-WINDOWHEIGHT);
         });
 
         primaryStage.setScene(mScene);
@@ -112,10 +113,10 @@ public class Main extends Application {
         playerList.add(dumym1);
         playerList.add(dummy2);
 
-
         for (var player: playerList ) {
             root.getChildren().add(player);
         }
+
         anim.start();
     }
 
@@ -125,7 +126,8 @@ public class Main extends Application {
         double vecL = Math.sqrt(Math.pow(x,2)+Math.pow(y,2));
         x/=vecL;
         y/=vecL;
-        Bullet b = new Bullet( x, y, player.getX()+20, player1.getY()+20);
+
+        Bullet b = new Bullet( x, y, player.getX(), player1.getY());
         bulletList.add(b);
         root.getChildren().add(b);
     }
