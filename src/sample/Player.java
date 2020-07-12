@@ -1,72 +1,53 @@
 package sample;
 
-import javafx.scene.paint.Color;
-import javafx.scene.shape.Circle;
+import java.awt.*;
 
 
-public class Player extends Circle {
-    private int x,y, health;
+public class Player extends GameObject {
+    private int health;
     private String name;
     private Map map;
     private int CIRCLEWIDTH = 10;
+    private Controller controller;
 
-    public Player(int width, int x, int y, String name, Color color, Map map){
-        super(width,color);
-        this.name = name;
-        this.x = x;
-        this.y = y;
+    public Player(int width, int x, int y, String name, Color color, Map map, ID id, Controller controller){
+        super(x,y,ID.Player,color);
         this.map = map;
+        this.name = name;
         health = 100;
-        update();
+        this.id = id;
+        this.controller = controller;
     }
 
-    public int getX() {
-        return x;
+    @Override
+    public void tick() {
+        //if(map.IsBorder((int)(x+vecX),(int)(y+vecY))){
+            x+= vecX;
+            y+= vecY;
+        //}
+
+        //move
+        if(controller.isUp()) vecY = -5;
+        else if(!controller.isDown()) vecY = 0;
+
+        if(controller.isDown()) vecY = 5;
+        else if(!controller.isUp()) vecY = 0;
+
+        if(controller.isLeft()) vecX = -5;
+        else if(!controller.isRight()) vecX = 0;
+
+        if(controller.isRight()) vecX = 5;
+        else if(!controller.isLeft()) vecX = 0;
     }
 
-    public int getY() {
-        return y;
+    public void render(Graphics g) {
+        g.setColor(color);
+        g.fillOval(x,y,CIRCLEWIDTH,CIRCLEWIDTH);
+
     }
 
-    public void moveX(int stride){
-        boolean clear = true;
-        int offset = stride > 0 ? CIRCLEWIDTH : 0;
-        // zkontroluje CIRCLEWIDTH sousednich pixelu ve smeru pohybu
-        for (int i = x;i< x+CIRCLEWIDTH;i++)
-            if(map.IsBorder(x+stride+offset,y+i)) {
-                clear = false;
-                System.out.println(x+"x:" + y);
-            }
-
-        if (!map.IsBorder(x+stride,y))
-        //if(clear)
-            x += stride;
-        update();
+    @Override
+    public Rectangle getBounds() {
+        return null;
     }
-    public void moveY(int stride){
-        boolean clear = true;
-        int offset = stride > 0 ? CIRCLEWIDTH : 0;
-        // zkontroluje CIRCLEWIDTH sousednich pixelu ve smeru pohybu
-        for (int i = y;i< y+CIRCLEWIDTH;i++)
-            if(map.IsBorder(x+i,y+stride+offset)){
-                clear = false;
-                System.out.println(x +"y:" + y);}
-
-
-        //if(clear)
-        if(!map.IsBorder(x,y+stride))
-            y += stride;
-        update();
-    }
-    private void update(){
-        this.setTranslateX(x);
-        this.setTranslateY(y);
-    }
-    public void hit(int dmg){
-        health-=dmg;
-    }
-    public boolean isAlive(){
-        return (health > 0);
-    }
-
 }

@@ -1,163 +1,114 @@
 package sample;
 
-import javafx.animation.AnimationTimer;
-import javafx.application.Application;
-import javafx.scene.Camera;
-import javafx.scene.Scene;
-import javafx.scene.canvas.Canvas;
-import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.image.Image;
-import javafx.scene.layout.*;
-import javafx.scene.paint.Color;
-import javafx.stage.Stage;
+import javax.swing.*;
 
-import javax.swing.text.Element;
-import javax.swing.text.html.ImageView;
 import java.awt.*;
+import java.awt.image.BufferStrategy;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Main extends Application {
+class Game extends Canvas {
 
-    protected List<Bullet> bulletList = new ArrayList<>();
-    protected List<Player> playerList = new ArrayList<>();
-    int CIRCLEWIDTH = 10, STRIDE = 5;
-    int WINDOWWIDTH = 600, WINDOWHEIGHT = 500;
+
+    final int CIRCLEWIDTH = 10, STRIDE = 5;
+    public static final int WINDOWWIDTH = 1000, WINDOWHEIGHT = 563;
     Map map;
-    Player player1;
-    Player dumym1;
-    Player dummy2;
-    Pane root;
-    Canvas canvas;
+    Thread thread;
+    boolean running;
+    Controller controller;
+    Image img;
+    Camera camera;
+
+    //init
+    public Game(){
+        controller = new Controller();
+        camera = new Camera(0,0);
+        img = Toolkit.getDefaultToolkit().createImage("mirage.png");
+        img = img.getScaledInstance(WINDOWWIDTH*4, WINDOWHEIGHT*4, Image.SCALE_DEFAULT);
+        this.addKeyListener(new KeyInput(controller));
+        map = new Map(WINDOWWIDTH,WINDOWHEIGHT,"file:mirage.png");
+
+        controller.addObject(new Player(CIRCLEWIDTH,100,100,"lado",Color.blue,null, ID.Player,controller));
+
+        new Window(WINDOWWIDTH, WINDOWHEIGHT, "  Terorist Strike: Lado Offensive", this);
+    }
+
+    public synchronized void start() {
+        thread = new Thread();
+        thread.start();
+        running = true;
+    }
+
+    public synchronized void stop() {
+        try {
+            thread.join();
+            running = false;
+        }catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
 
-    //  change/check every frame
-    AnimationTimer anim = new AnimationTimer() {
-        @Override
-        public void handle(long l) {
-
-            List<Bullet> bulToRemove = new ArrayList<>();
-            List<Player> plToRemove = new ArrayList<>();
-            for (var bul: bulletList ) {
-                bul.update();
-                if( bul.checkColision(playerList) || map.IsBorder(bul.x,bul.y) )
-                    bulToRemove.add(bul);
+    //zkopirovana game loop
+    public void run() {
+        this.requestFocus();
+        long lastTime = System.nanoTime();
+        double amountOfTicks = 60.0;
+        double ns = 1000000000 / amountOfTicks;
+        double delta = 0;
+        long timer = System.currentTimeMillis();
+        int frames = 0;
+        while(running) {
+            long now = System.nanoTime();
+            delta += (now - lastTime) / ns;
+            lastTime = now;
+            while(delta >= 1) {
+                tick();
+                delta--;
             }
-            for (var bul: bulToRemove ) {
-                bulletList.remove(bul);
-                root.getChildren().remove(bul);
-            }
+            if(running)
+                render();
+            frames++;
 
-            //odstraneni primo -> strelba do nohy
-            for (var player: playerList ) {
-                if(!player.isAlive()){
-                    plToRemove.add(player);
-                }
+            if(System.currentTimeMillis() - timer > 1000) {
+                timer += 1000;
+                System.out.println("FPS: " + frames);
+                frames = 0;
             }
-            for (var player: plToRemove ) {
-                root.getChildren().remove(player);
-                playerList.remove(player);
-            }
-            
-            bulToRemove.clear();
-            plToRemove.clear();
+        }
+        stop();
+    }
 
-
-            root.relocate(-(player1.getX()-CIRCLEWIDTH/2-WINDOWWIDTH/2),-(player1.getY()-CIRCLEWIDTH/2-WINDOWWIDTH/2));
+    private void tick() {
+        for (var obj: controller.object) {
+            if( obj.id == ID.Player)
+                camera.tick(obj);
         }
 
-
-    };
-
-    @Override
-     /* canvas - neumoznuje kreslit objekty
-      scene - nutnost odstranovat/pridavat vsechny objekty, posun pozadi
-     */
-    public void start(Stage primaryStage){
-        primaryStage.setTitle("Titulek");
-        root = new Pane();
-
-        canvas = new Canvas(8000,2000);
-        GraphicsContext gc = canvas.getGraphicsContext2D();
-        //TODO: trik je udelat canvas vetsi nez window
-
-        //canvas.setTranslateX(-1000);
-        //canvas.setTranslateY(-1000);
-
-
-        root.getChildren().add(canvas);
-
-
-        Scene mScene = new Scene(root,600,500);
-
-
-        //zkousim img
-
-        Image img = new Image("file:mirage.png");
-        gc.drawImage(img,0,0,2500,2500);
-
-
-        //nastavi pozadi
-        map = new Map();
-        //map.set(root,"file:mirage.png");
-
-        player1 = new Player(CIRCLEWIDTH,200,250,"macho", Color.BLUE, map);
-        //dumym1 = new Player(CIRCLEWIDTH,200,200,"Deviant", Color.RED, map);
-        //dummy2 = new Player(CIRCLEWIDTH,400,250,"Jericho", Color.GREEN, map);
-
-
-        //keyListener
-        mScene.setOnKeyPressed( e -> {
-            switch (e.getCode()) {
-                case W -> player1.moveY(-STRIDE);
-                case S -> player1.moveY(STRIDE);
-                case A -> player1.moveX(-STRIDE);
-                case D -> player1.moveX(STRIDE);
-                case F -> shoot(player1,3, 2);
-            }
-        });
-
-
-
-        //mouseListener
-        mScene.setOnMouseClicked( e -> {
-            //relative to window
-            int x = (int)e.getX()-(CIRCLEWIDTH/2+WINDOWWIDTH/2);
-            int y = (int)e.getY()-(CIRCLEWIDTH/2+WINDOWHEIGHT/2);
-            System.out.println(e.getX()+"x: "+ x + " y: "+ y + " "+e.getY());
-            shoot(player1,x,y);
-        });
-
-        primaryStage.setScene(mScene);
-        primaryStage.show();
-
-
-        /*playerList.add(player1);
-        playerList.add(dumym1);
-        playerList.add(dummy2);
-
-        for (var player: playerList ) {
-            root.getChildren().add(player);
-        }*/
-
-        anim.start();
-
+        controller.tick();
     }
 
-    public void shoot(Player player,double x, double y) {
+    private void render() {
+        BufferStrategy bs = this.getBufferStrategy();
+        if (bs == null) {
+            this.createBufferStrategy(3);
+            return;
+        }
+        Graphics g = bs.getDrawGraphics();
+        Graphics2D g2d = (Graphics2D) g;
 
-        //normalizovany vektor
-        double vecL = Math.sqrt(Math.pow(x,2)+Math.pow(y,2));
-        x/=vecL;
-        y/=vecL;
+        g2d.translate(-camera.getX(),-camera.getY());
 
-        Bullet b = new Bullet( x, y, player.getX(), player1.getY());
-        bulletList.add(b);
-        root.getChildren().add(b);
+        g.drawImage(img,0,0,this);
+
+        controller.render(g);
+
+
+        g.dispose();
+        bs.show();
     }
-
 
     public static void main(String[] args) {
-        launch(args);
+        new Game();
     }
 }
