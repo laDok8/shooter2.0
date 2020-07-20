@@ -4,33 +4,47 @@ import javax.swing.*;
 
 import java.awt.*;
 import java.awt.image.BufferStrategy;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 
 class Game extends Canvas {
 
 
-    final int CIRCLEWIDTH = 10, STRIDE = 5;
+    final int BLOCKWIDTH = 32, STRIDE = 5;
     public static final int WINDOWWIDTH = 1000, WINDOWHEIGHT = 563;
-    Map map;
     Thread thread;
     boolean running;
     Controller controller;
-    Image img;
     Camera camera;
+    private BufferedImage map = null;
+    Network network;
 
     //init
     public Game(){
         controller = new Controller();
-        camera = new Camera(0,0);
-        img = Toolkit.getDefaultToolkit().createImage("mirage.png");
-        img = img.getScaledInstance(WINDOWWIDTH*4, WINDOWHEIGHT*4, Image.SCALE_DEFAULT);
         this.addKeyListener(new KeyInput(controller));
-        map = new Map(WINDOWWIDTH,WINDOWHEIGHT,"file:mirage.png");
 
-        controller.addObject(new Player(CIRCLEWIDTH,100,100,"lado",Color.blue,null, ID.Player,controller));
+        camera = new Camera(0,0);
+        this.addMouseListener(new MouseInput(controller, camera));
+
+        Map mapcl = new Map();
+        map = mapcl.loadImage("/mirage1.png");
+        loadLevel(map);
+
+        //prvni spusteni vytvori servr i klienta
+        network = new Network();
+        controller.attachConnection(network);
+        //spinlock
+        //TODO: odstrani az pojede
+        try {
+            Thread.sleep(500);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
         new Window(WINDOWWIDTH, WINDOWHEIGHT, "  Terorist Strike: Lado Offensive", this);
+
     }
 
     public synchronized void start() {
@@ -45,6 +59,31 @@ class Game extends Canvas {
             running = false;
         }catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    private void loadLevel(BufferedImage image){
+        boolean nacten = false;
+        int w = image.getWidth(),h = image.getHeight();
+        for (int x = 0; x < w;++x){
+            for (int y = 0; y < h; ++y){
+                int pixel = image.getRGB(x,y);
+                //maska jen RGB
+                pixel&= 0xffffff;
+                /*int red = (pixel >> 16) & 0xff;
+                int green = (pixel >> 8) & 0xff;
+                int blue = pixel & 0xff;*/
+                //black
+                if( pixel == 0x000000)
+                    controller.addObject(new Block(x*BLOCKWIDTH,y*BLOCKWIDTH,ID.Block,Color.BLACK));
+                //green
+                if( pixel == 0x00ff00 && !nacten){
+                    controller.addObject(new Player(x*BLOCKWIDTH,y*BLOCKWIDTH,"lado",Color.blue, ID.Player,controller));
+                    //controller.addObject(new Player(x*BLOCKWIDTH+64,y*BLOCKWIDTH+64,"lado",Color.red, ID.Player,controller));
+                    nacten = true;
+                }
+
+            }
         }
     }
 
@@ -80,9 +119,13 @@ class Game extends Canvas {
     }
 
     private void tick() {
+        boolean hotovo = false;
         for (var obj: controller.object) {
-            if( obj.id == ID.Player)
+            //tick jen na 1. hrace (vzdy ja)
+            if( obj.id == ID.Player && ! hotovo) {
                 camera.tick(obj);
+                hotovo = true;
+            }
         }
 
         controller.tick();
@@ -97,9 +140,10 @@ class Game extends Canvas {
         Graphics g = bs.getDrawGraphics();
         Graphics2D g2d = (Graphics2D) g;
 
-        g2d.translate(-camera.getX(),-camera.getY());
+        g.setColor(Color.WHITE);
+        g.fillRect(0,0,1920,1080);
 
-        g.drawImage(img,0,0,this);
+        g2d.translate(-camera.getX(),-camera.getY());
 
         controller.render(g);
 

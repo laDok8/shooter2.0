@@ -6,13 +6,11 @@ import java.awt.*;
 public class Player extends GameObject {
     private int health;
     private String name;
-    private Map map;
-    private int CIRCLEWIDTH = 10;
+    private int CIRCLEWIDTH = 32;
     private Controller controller;
 
-    public Player(int width, int x, int y, String name, Color color, Map map, ID id, Controller controller){
+    public Player(int x, int y, String name, Color color, ID id, Controller controller){
         super(x,y,ID.Player,color);
-        this.map = map;
         this.name = name;
         health = 100;
         this.id = id;
@@ -21,10 +19,10 @@ public class Player extends GameObject {
 
     @Override
     public void tick() {
-        //if(map.IsBorder((int)(x+vecX),(int)(y+vecY))){
             x+= vecX;
             y+= vecY;
-        //}
+
+            collision();
 
         //move
         if(controller.isUp()) vecY = -5;
@@ -40,6 +38,18 @@ public class Player extends GameObject {
         else if(!controller.isLeft()) vecX = 0;
     }
 
+    private void collision() {
+        for (var obj: controller.object) {
+            //skipnu sebe
+            if(obj == this)
+                continue;
+            if(getBounds().intersects(obj.getBounds())){
+                x-=vecX;
+                y-=vecY;
+            }
+        }
+    }
+
     public void render(Graphics g) {
         g.setColor(color);
         g.fillOval(x,y,CIRCLEWIDTH,CIRCLEWIDTH);
@@ -48,6 +58,6 @@ public class Player extends GameObject {
 
     @Override
     public Rectangle getBounds() {
-        return null;
+        return new Rectangle(x,y,CIRCLEWIDTH,CIRCLEWIDTH);
     }
 }

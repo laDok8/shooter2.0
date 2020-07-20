@@ -18,4 +18,16 @@ public abstract class GameObject {
     public abstract void tick();
     public abstract void render(Graphics g);
     public abstract Rectangle getBounds();
+
+    @Override
+    public String toString() {
+        return "GameObject{" +
+                "x=" + x +
+                ", y=" + y +
+                ", vecX=" + vecX +
+                ", vecY=" + vecY +
+                ", color=" + color +
+                ", id=" + id +
+                '}';
+    }
 }

@@ -1,23 +1,19 @@
 package sample;
 
-import javafx.scene.image.Image;
-import javafx.scene.paint.Color;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import javax.imageio.ImageIO;
+
 
 public class Map {
-    private Image img;
+    private BufferedImage image;
 
-    public Map(int sirka, int vyska, String nazev) {
-
-        Image image = new Image(nazev);
-        img = new Image(nazev,sirka*4,vyska*4,true,true,true);
-    }
-    public Image getMap(){
-        return img;
-    }
-
-    public boolean IsBorder(int x, int y) {
-        Color clr = img.getPixelReader().getColor(x, y);
-        //return clr.equals(Color.BLACK);
-        return !clr.equals(Color.WHITE);
+    public BufferedImage loadImage(String nazev){
+        try {
+            image = ImageIO.read(getClass().getResource(nazev));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return image;
     }
 }

@@ -6,26 +6,43 @@ import java.awt.*;
 
 // TODO: move everything to double
 public class Bullet extends GameObject {
-    static private final int BULLETWIDTH = 5,BULLETHEIGHT = 2;
+    static private final int BULLETWIDTH = 5;
+    Controller controller;
 
-    public Bullet(double vectx, double vecty,int x, int y){
-        super(BULLETWIDTH,BULLETHEIGHT,ID.Bullet, Color.BLACK);
+    //new Bullet(obj.x + 16, obj.y + 16,ID.Bullet,controller, Color.darkGray,x,y));
+    public Bullet(int x, int y,ID id,Controller controller ,Color color,int vecx, int vecy){
+
+        super(x,y,ID.Bullet, Color.BLACK);
+        this.vecX = (vecx-x)/10;
+        this.vecY = (vecy-y)/10;
+        this.controller = controller;
     }
 
     @Override
     public void tick() {
         x+= vecX;
         y+= vecY;
+
+        for (var obj: controller.object) {
+            if( obj == this)
+                continue;
+            if(getBounds().intersects(obj.getBounds())){
+                //controller.remove(obj);
+                controller.remove(this);
+                break;
+            }
+
+        }
     }
 
     @Override
     public void render(Graphics g) {
         g.setColor(color);
-        g.fillRect(x,y,BULLETWIDTH,BULLETHEIGHT);
+        g.fillOval(x,y,BULLETWIDTH,BULLETWIDTH);
     }
 
     @Override
     public Rectangle getBounds() {
-        return null;
+        return new Rectangle(x,y,BULLETWIDTH,BULLETWIDTH);
     }
 }
