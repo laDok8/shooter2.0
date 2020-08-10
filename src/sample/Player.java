@@ -9,12 +9,24 @@ public class Player extends GameObject {
     private int CIRCLEWIDTH = 32;
     private Controller controller;
 
-    public Player(int x, int y, String name, Color color, ID id, Controller controller){
+    public Player(int x, int y, String name, Color color, Controller controller){
         super(x,y,ID.Player,color);
         this.name = name;
         health = 100;
-        this.id = id;
         this.controller = controller;
+    }
+
+    @Override
+    public String toString() {
+        return "GameObject{" +
+                ", x=" + x +
+                ", y=" + y +
+                ", vecX=" + vecX +
+                ", vecY=" + vecY +
+                ", color=" + color +
+                ", id=" + id +
+                ", name=" + name +
+                "}";
     }
 
     @Override
@@ -51,6 +63,8 @@ public class Player extends GameObject {
     }
 
     public void render(Graphics g) {
+        g.setColor(Color.BLACK);
+        g.drawString(name,x,y);
         g.setColor(color);
         g.fillOval(x,y,CIRCLEWIDTH,CIRCLEWIDTH);
 

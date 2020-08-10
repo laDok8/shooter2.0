@@ -42,10 +42,10 @@ public class Network{
         }
     }
 
-    public ArrayList<String> update(ArrayList<String> send){
+    public ArrayList<GameObject> update(ArrayList<GameObject> send){
         var xyz = client.update(send).clone();
         client.list.clear();
 
-        return (ArrayList<String>) xyz;
+        return (ArrayList<GameObject>) xyz;
     }
 }

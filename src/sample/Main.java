@@ -78,7 +78,7 @@ class Game extends Canvas {
                     controller.addObject(new Block(x*BLOCKWIDTH,y*BLOCKWIDTH,ID.Block,Color.BLACK));
                 //green
                 if( pixel == 0x00ff00 && !nacten){
-                    controller.addObject(new Player(x*BLOCKWIDTH,y*BLOCKWIDTH,"lado",Color.blue, ID.Player,controller));
+                    controller.addObject(new Player(x*BLOCKWIDTH,y*BLOCKWIDTH,"lado",Color.blue,controller));
                     //controller.addObject(new Player(x*BLOCKWIDTH+64,y*BLOCKWIDTH+64,"lado",Color.red, ID.Player,controller));
                     nacten = true;
                 }

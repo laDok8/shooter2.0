@@ -31,20 +31,17 @@ public class Client {
     }
 
     //furt posloucha
-    public ArrayList<String> list = new ArrayList<String>();
+    public ArrayList<GameObject> list = new ArrayList<>();
 
     public void recieve(){
         System.out.println("CLIENT INIT");
         while(true){
             try {
-                //list.addAll((List<String>) input.readObject());
-                    var x = (ArrayList<String>) input.readObject();
-                    if(x.size() <= 0 )
+                    String x = (String) input.readObject();
+                    if(x.length() <= 0 )
                         continue;
-                for (var el: x) {
-                        if(!list.contains(el))
-                            list.add(el);
-                }
+                        if(!list.contains(GameObject.toObject(x)))
+                            list.add(GameObject.toObject(x));
                 //list.addAll(x);
             } catch (Exception e) {
                 e.printStackTrace();
@@ -53,10 +50,11 @@ public class Client {
         }
     }
 
-    public ArrayList<String> update(ArrayList<String> send){
+    public ArrayList<GameObject> update(ArrayList<GameObject> send){
         try {
-            output.writeObject(send);
-            //output.writeUnshared(send);
+            for (var el: send) {
+                output.writeObject(el.toString());
+            }
             //output.flush();
             output.reset();
             return list;

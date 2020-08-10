@@ -20,7 +20,7 @@ public class MouseInput extends MouseAdapter {
         //potreba zmenit pri vice hracich
         for (var obj : controller.object) {
             if (obj.id == ID.Player) {
-                controller.addObject(new Bullet(obj.x + 16, obj.y + 16, ID.Bullet, controller, Color.RED, mx, my));
+                controller.addObject(new Bullet(obj.x + 16, obj.y + 16, controller,mx, my));
             }
         }
     }

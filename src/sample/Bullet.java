@@ -10,7 +10,7 @@ public class Bullet extends GameObject {
     Controller controller;
 
     //new Bullet(obj.x + 16, obj.y + 16,ID.Bullet,controller, Color.darkGray,x,y));
-    public Bullet(int x, int y,ID id,Controller controller ,Color color,int vecx, int vecy){
+    public Bullet(int x, int y, Controller controller, float vecx, float vecy){
 
         super(x,y,ID.Bullet, Color.BLACK);
         this.vecX = (vecx-x)/10;
@@ -27,7 +27,6 @@ public class Bullet extends GameObject {
             if( obj == this)
                 continue;
             if(getBounds().intersects(obj.getBounds())){
-                //controller.remove(obj);
                 controller.remove(this);
                 break;
             }
