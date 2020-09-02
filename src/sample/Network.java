@@ -12,14 +12,14 @@ public class Network{
     private Thread serverThread,t;
     private ServerSocket servr;
 
-    private String adresa = "localhost";
+    //private String adresa = "localhost";
     private int port = 500;
 
     public Client client;
     private Server server;
     private Socket socket;
 
-    public Network() {
+    public Network(String adresa) {
         try {
             socket = new Socket(adresa, port);
         } catch (IOException e) {
