@@ -1,14 +1,9 @@
 package sample;
 
-import com.sun.javafx.collections.MappingChange;
-import org.jetbrains.annotations.NotNull;
+//import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Scanner;
-
-import static java.util.Map.*;
 
 public abstract class GameObject {
     int x,y;
@@ -39,7 +34,7 @@ public abstract class GameObject {
                 "}";
     }
 
-    public static @NotNull GameObject toObject(String str){
+    public static GameObject toObject(String str){
 
         Scanner car = new Scanner(str);
         car.useDelimiter(",");

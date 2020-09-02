@@ -10,7 +10,6 @@ public class Block extends GameObject{
     }
     @Override
     public void tick() {
-
     }
 
     @Override
