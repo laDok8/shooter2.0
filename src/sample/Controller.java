@@ -7,10 +7,9 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 public class Controller {
     //logika
-    protected CopyOnWriteArrayList<GameObject> object = new CopyOnWriteArrayList<GameObject>();
+    protected static CopyOnWriteArrayList<GameObject> object = new CopyOnWriteArrayList<GameObject>();
     protected ArrayList<GameObject> odchozi = new ArrayList<>();
     private ArrayList<GameObject> recievedO = new ArrayList<>();
-    private Network network;
 
     private boolean up = false,down = false,left = false,right = false;
 
@@ -21,6 +20,14 @@ public class Controller {
                 odchozi.add(obj);
             }
         }
+
+        if (recievedO == null || recievedO.size() == 0)
+            return;
+        for (var obj : recievedO) {
+            if(obj instanceof Bullet)
+                obj.tick();
+
+        }
     }
     public void render(Graphics g){
         for (var obj : object) {
@@ -29,11 +36,11 @@ public class Controller {
 
         //odesilani-prijimani dat
         if(odchozi.size()>0) {
-            recievedO = network.update(odchozi);
+            recievedO = Network.update(odchozi);
         }
-
         if (recievedO == null || recievedO.size() == 0)
             return;
+
         for (var str : recievedO) {
                 if(str == null)
                     continue;
@@ -44,8 +51,10 @@ public class Controller {
     public void addObject(GameObject obj){
         object.add(obj);
     }
-    public void remove(GameObject obj){
-        object.remove(obj);
+    public static void remove(GameObject obj){
+        try{
+            object.remove(obj);
+        }catch (Exception e){}
     }
 
 
@@ -79,10 +88,6 @@ public class Controller {
 
     public void setRight(boolean right) {
         this.right = right;
-    }
-
-    public void attachConnection(Network network){
-        this.network = network;
     }
 
 }

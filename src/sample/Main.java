@@ -1,22 +1,12 @@
 package sample;
 
-import javafx.scene.input.KeyCode;
-
-import javax.swing.*;
-
 import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.List;
-
-import static java.net.InetAddress.*;
 
 class Game extends Canvas {
 
@@ -32,6 +22,7 @@ class Game extends Canvas {
     private StringBuilder Input;
     private String menuString;
     private String Name;
+    Player localPlayer;
 
     //init
     public Game(){
@@ -86,7 +77,8 @@ class Game extends Canvas {
                     controller.addObject(new Block(x*BLOCKWIDTH,y*BLOCKWIDTH,ID.Block,Color.BLACK));
                 //green
                 if( pixel == 0x00ff00 && !nacten){
-                    controller.addObject(new Player(x*BLOCKWIDTH,y*BLOCKWIDTH, Name,Color.blue,controller));
+                    localPlayer = new Player(x*BLOCKWIDTH,y*BLOCKWIDTH, Name,Color.blue,controller);
+                    controller.addObject(localPlayer);
                     nacten = true;
                 }
 
@@ -119,8 +111,7 @@ class Game extends Canvas {
                             Input.delete(0,Input.length());
                         }
                         else if(pripojit){
-                            network = new Network(Input.toString());
-                            controller.attachConnection(network);
+                            network.makeClient(Input.toString());
                             running = true;
                         }
                         return;
@@ -142,14 +133,15 @@ class Game extends Canvas {
                     case KeyEvent.VK_1:pripojit = true;break;
                     case KeyEvent.VK_2:
                         try {
+                            //muze byt vic IP, vytvorim spojeni a zjistim, kterou IP vyuzivam
                             final DatagramSocket socket = new DatagramSocket();
                             socket.connect(InetAddress.getByName("8.8.8.8"), 10002);
                             String ip = socket.getLocalAddress().getHostAddress();
-                            network = new Network(ip);
+                            network.makeServer(ip);
+                            network.makeClient(ip);
                         } catch (Exception ex) {
                             ex.printStackTrace();
                         }
-                        controller.attachConnection(network);
                         running = true;
                         break;
                 }
@@ -198,7 +190,7 @@ class Game extends Canvas {
     }
 
     private void tick() {
-        boolean hotovo = false;
+        /*boolean hotovo = false;
         //pohyb kamery
         for (var obj: controller.object) {
             //tick jen na 1. hrace (vzdy ja)
@@ -206,8 +198,8 @@ class Game extends Canvas {
                 camera.tick(obj);
                 hotovo = true;
             }
-        }
-
+        }*/
+        camera.tick(localPlayer);
         controller.tick();
     }
 
@@ -223,15 +215,11 @@ class Game extends Canvas {
         g.setColor(Color.WHITE);
         g.fillRect(0,0,1920,1080);
         g.setColor(Color.black);
-        //muze byt vic IP, vytvorim spojeni a zjistim, kterou IP vyuzivam
-        try {
-            final DatagramSocket socket = new DatagramSocket();
-            socket.connect(InetAddress.getByName("8.8.8.8"), 10002);
-            String ip = socket.getLocalAddress().getHostAddress();
-            g.drawString(ip,0,10);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        g.drawString(Network.getpAdresa(),0,10);
+        g.setColor(Color.darkGray);
+        g.fillRect(0,25,102,17);
+        g.setColor(Color.red);
+        g.fillRect(1,26,localPlayer.getHealth(),15);
 
         g2d.translate(-camera.getX(),-camera.getY());
 

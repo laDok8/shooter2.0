@@ -1,16 +1,11 @@
 package sample;
 
-import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
 
 public class Client {
-    private String adresa = "localhost";
-    private int port = 500;
     ObjectInputStream input;
     ObjectOutputStream output;
     Socket socket;

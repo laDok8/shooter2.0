@@ -4,6 +4,7 @@ import java.awt.*;
 
 
 public class Player extends GameObject {
+
     private int health;
     private String name;
     private int CIRCLEWIDTH = 32;
@@ -14,6 +15,13 @@ public class Player extends GameObject {
         this.name = name;
         health = 100;
         this.controller = controller;
+    }
+
+    public int getHealth() {
+        return health;
+    }
+    public void getDmg(int x){
+        health-=x;
     }
 
     @Override

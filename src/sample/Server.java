@@ -6,7 +6,6 @@ import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 
@@ -16,14 +15,19 @@ public class Server {
     List<Connection> clients = new ArrayList<>();
 
     private String adresa = "localhost";
-    private int port = 500;
     private ServerSocket servr;
     private Socket s;
 
-    public Server() throws IOException {
-        servr = new ServerSocket(port);
+    public Server(int port){
+
         //servr.setSoTimeout(10000);
         //run v novem vlakne
+        try {
+            servr = new ServerSocket(port);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         Thread t = new Thread(() -> {
             try {
                 run();
@@ -63,28 +67,6 @@ public class Server {
             t.start();
         }
     }
-
-    /*public void run2(){
-        System.out.println("PISU");
-        while (true) {
-            //odeslu
-            try {
-
-                if(listOfObjects.size() > 0)
-                    for (var cl: clients) {
-                        for (var el: listOfObjects) {
-                            cl.output.writeObject(el);
-                        }
-                        cl.output.flush();
-                    }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            for(int i=0;i< listOfObjects.size();i++)
-                listOfObjects.get(i).clear();
-        }
-    }
-}*/
 
 
     class Connection {

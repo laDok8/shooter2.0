@@ -59,6 +59,7 @@ public abstract class GameObject {
                     break;
 
                 String right = rov.next();
+                right = right.replaceAll("}","");
 
                 switch(left){
                     case "x":mx = Integer.parseInt(right);break;
